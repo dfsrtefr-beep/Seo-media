@@ -3,7 +3,19 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
+const AUTH_SECRET =
+  process.env.NEXTAUTH_SECRET ||
+  (process.env.NODE_ENV === "production"
+    ? (() => {
+        console.warn(
+          "[seo-media] NEXTAUTH_SECRET не задан — используется небезопасный fallback. Задайте NEXTAUTH_SECRET в настройках окружения."
+        );
+        return "seo-media-insecure-fallback-secret-change-me";
+      })()
+    : "seo-media-dev-secret");
+
 export const authOptions: NextAuthOptions = {
+  secret: AUTH_SECRET,
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
